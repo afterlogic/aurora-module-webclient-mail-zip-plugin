@@ -23,7 +23,7 @@ module.exports = function (oAppData) {
 				if (bAllowZip)
 				{
 					App.subscribeEvent('MailWebclient::ParseFile::after', function (oFile) {
-						if (oFile && _.isFunction(oFile.addAction) && oFile.mimeType().indexOf('zip') !== -1)
+						if (oFile && _.isFunction(oFile.addAction) && oFile.extension() === 'zip')
 						{
 							oFile.mailzipSubFilesLoaded = ko.observable(false);
 							oFile.mailzipSubFilesLoading = ko.observable(false);
@@ -84,6 +84,7 @@ module.exports = function (oAppData) {
 							};
 							
 							oFile.addAction('expand', true, oActionData);
+							oFile.removeAction('view');
 						}
 					});
 				}
