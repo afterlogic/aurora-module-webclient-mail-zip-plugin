@@ -95,4 +95,58 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $mResult;
 	}
+	
+	/**
+	 * @param int $UserId
+	 * @param int $AccountID
+	 * @param array $Attachments
+	 * @return boolean
+	 */
+	public function SaveAttachments($UserId, $AccountID, $Attachments = array())
+	{
+		$mResult = false;
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$aAddFiles = array();
+		
+		$oMailModuleDecorator = \Aurora\System\Api::GetModuleDecorator('Mail');
+		if ($oMailModuleDecorator)
+		{
+			$aTempFiles = $oMailModuleDecorator->SaveAttachmentsAsTempFiles($AccountID, $Attachments);
+			if (\is_array($aTempFiles))
+			{
+				$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
+				foreach ($aTempFiles as $sTempName => $sData)
+				{
+					$aData = \Aurora\System\Api::DecodeKeyValues($sData);
+					if (\is_array($aData) && isset($aData['FileName']))
+					{
+						$sFileName = (string) $aData['FileName'];
+						$sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
+						$aAddFiles[] = array($sTempPath, $sFileName);
+					}
+				}
+			}			
+		}
+		
+		if (count($aAddFiles) > 0)
+		{
+			$oZip = new \ZipArchive();
+			
+			$sZipTempName = md5(microtime());
+			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName);
+			if ($oZip->open($sZipTempPath, \ZipArchive::CREATE))
+			{
+				foreach ($aAddFiles as $aItem)
+				{
+					$oZip->addFile($aItem[0], $aItem[1]);
+				}
+				$oZip->close();
+				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName);
+				$mResult = \Aurora\System\Utils::GetClientFileResponse($UserId, 'attachments.zip', $sZipTempName, $iFileSize);
+			}
+		}
+		
+		return $mResult;
+	}
 }
