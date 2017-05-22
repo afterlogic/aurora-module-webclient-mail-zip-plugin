@@ -32,7 +32,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetSettings()
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
 		
 		return array(
 			'AllowZip' => class_exists('ZipArchive')
@@ -105,7 +105,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SaveAttachments($UserId, $AccountID, $Attachments = array())
 	{
 		$mResult = false;
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$aAddFiles = array();
 		
