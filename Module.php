@@ -45,7 +45,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 		$aValues = \Aurora\System\Api::DecodeKeyValues($Hash);
-		$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Mail');
+		$oCoreDecorator = \Aurora\Modules\Mail\Module::Decorator();
 		$aFiles = $oCoreDecorator->SaveAttachmentsAsTempFiles($aValues['AccountID'], [$Hash]);
 		foreach ($aFiles as $sTempName => $sHash)
 		{
@@ -109,7 +109,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$aAddFiles = array();
 		
-		$oMailModuleDecorator = \Aurora\System\Api::GetModuleDecorator('Mail');
+		$oMailModuleDecorator = \Aurora\Modules\Mail\Module::Decorator();
 		if ($oMailModuleDecorator)
 		{
 			$aTempFiles = $oMailModuleDecorator->SaveAttachmentsAsTempFiles($AccountID, $Attachments);
