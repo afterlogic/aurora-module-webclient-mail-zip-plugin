@@ -1,11 +1,13 @@
 {
 	"name": "afterlogic/aurora-module-webclient-mail-zip-plugin",
-   	"type": "aurora-module",
+	"type": "aurora-module",
 	"require": {
 		"php":">=5.4.0",
 		"afterlogic/aurora-framework": "~0.4"
 	},
 	"extra": {
-		"installer-name": "MailZipWebclientPlugin"
+		"installer-name": "MailZipWebclientPlugin",
+		"include-in-mobile": true,
+		"include-in-desktop": true
 	}
 }
