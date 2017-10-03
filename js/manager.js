@@ -14,6 +14,7 @@ module.exports = function (oAppData) {
 			UrlUtils = require('%PathToCoreWebclientModule%/js/utils/Url.js'),
 			
 			Ajax = require('%PathToCoreWebclientModule%/js/Ajax.js'),
+			Screens = require('%PathToCoreWebclientModule%/js/Screens.js'),
 			
 			bAllowZip = oAppData['%ModuleName%'] ? !!oAppData['%ModuleName%'].AllowZip : false
 		;
@@ -92,14 +93,20 @@ module.exports = function (oAppData) {
 						fAddAllAttachmentsDownloadMethod({
 							'Text': TextUtils.i18n('%MODULENAME%/ACTION_DOWNLOAD_ATTACHMENTS_ZIP'),
 							'Handler': function (iAccountId, aHashes) {
+								Screens.showLoading(TextUtils.i18n('COREWEBCLIENT/INFO_LOADING'));
 								Ajax.send('%ModuleName%', 'SaveAttachments', {
 									'AccountID': iAccountId,
 									'Attachments': aHashes
 								}, function (oResponse) {
+									Screens.hideLoading();
 									if (oResponse.Result && oResponse.Result.Actions && oResponse.Result.Actions.download)
 									{
 										var sDownloadLink = oResponse.Result.Actions.download.url;
 										UrlUtils.downloadByUrl(sDownloadLink);
+									}
+									else
+									{
+										Api.showErrorByCode(oResponse);
 									}
 								});
 							}
