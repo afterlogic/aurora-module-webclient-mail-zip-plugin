@@ -51,7 +51,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if ($sHash === $Hash)
 			{
-				$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
+				$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName, '', 'Mail');
 				$mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
 			}
 		}
@@ -77,11 +77,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sFileName = \MailSo\Base\Utils::Utf8Clear(basename($aStat['name']));
 					$sTempName = md5(microtime(true).rand(1000, 9999));
 
-					if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile))
+					if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', 'Mail'))
 					{
 						unset($sFile);
 
-						$mResult[] = \Aurora\System\Utils::GetClientFileResponse(\Aurora\System\Api::getAuthenticatedUserId(), $sFileName, $sTempName, $iFileSize);
+						$mResult[] = \Aurora\System\Utils::GetClientFileResponse(
+							$this->GetName(), \Aurora\System\Api::getAuthenticatedUserId(), $sFileName, $sTempName, $iFileSize
+						);
 					}
 					else
 					{
@@ -122,7 +124,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if (\is_array($aData) && isset($aData['FileName']))
 					{
 						$sFileName = (string) $aData['FileName'];
-						$sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
+						$sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName, '', 'Mail');
 						$aAddFiles[] = array($sTempPath, $sFileName);
 					}
 				}
@@ -134,7 +136,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oZip = new \ZipArchive();
 			
 			$sZipTempName = md5(microtime());
-			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName);
+			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName, '', 'Mail');
 			if ($oZip->open($sZipTempPath, \ZipArchive::CREATE))
 			{
 				foreach ($aAddFiles as $aItem)
@@ -142,8 +144,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oZip->addFile($aItem[0], $aItem[1]);
 				}
 				$oZip->close();
-				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName);
-				$mResult = \Aurora\System\Utils::GetClientFileResponse($UserId, 'attachments.zip', $sZipTempName, $iFileSize);
+				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName, '', 'Mail');
+				$mResult = \Aurora\System\Utils::GetClientFileResponse(
+					$this->GetName(), $UserId, 'attachments.zip', $sZipTempName, $iFileSize
+				);
 			}
 		}
 		
