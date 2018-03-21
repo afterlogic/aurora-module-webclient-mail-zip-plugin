@@ -51,7 +51,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if ($sHash === $Hash)
 			{
-				$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName, '', 'Mail');
+				$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
 				$mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
 			}
 		}
@@ -64,7 +64,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mResult = array();
 		
 		$oZip = new \ZipArchive();
-		if ($oZip->open($sTempZipPath))
+		
+		if (file_exists($sTempZipPath) && $oZip->open($sTempZipPath))
 		{
 			for ($iIndex = 0; $iIndex < $oZip->numFiles; $iIndex++)
 			{
@@ -77,7 +78,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sFileName = \MailSo\Base\Utils::Utf8Clear(basename($aStat['name']));
 					$sTempName = md5(microtime(true).rand(1000, 9999));
 
-					if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', 'Mail'))
+					if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', $this->GetName()))
 					{
 						unset($sFile);
 
