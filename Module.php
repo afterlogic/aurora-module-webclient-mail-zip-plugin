@@ -46,14 +46,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 		$aValues = \Aurora\System\Api::DecodeKeyValues($Hash);
 		$oCoreDecorator = \Aurora\Modules\Mail\Module::Decorator();
-		$aFiles = $oCoreDecorator->SaveAttachmentsAsTempFiles($aValues['AccountID'], [$Hash]);
-		foreach ($aFiles as $sTempName => $sHash)
+		
+		if (isset($aValues['AccountID']))
 		{
-			if ($sHash === $Hash)
+			$aFiles = $oCoreDecorator->SaveAttachmentsAsTempFiles($aValues['AccountID'], [$Hash]);
+			foreach ($aFiles as $sTempName => $sHash)
 			{
-				$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
-				$mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
+				if ($sHash === $Hash)
+				{
+					$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
+					$mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
+				}
 			}
+		}
+		else
+		{
+			$sTempName = (isset($aValues['TempName'])) ? $aValues['TempName'] : 0;
+			$sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
+			$mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
 		}
 			
 		return $mResult;
