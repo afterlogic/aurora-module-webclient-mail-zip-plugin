@@ -135,7 +135,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if (\is_array($aData) && isset($aData['FileName']))
 					{
 						$sFileName = (string) $aData['FileName'];
-						$sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName, '', 'Mail');
+						$sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
 						$aAddFiles[] = array($sTempPath, $sFileName);
 					}
 				}
@@ -147,7 +147,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oZip = new \ZipArchive();
 			
 			$sZipTempName = md5(microtime());
-			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName, '', 'Mail');
+			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName, '', $this->GetName());
 			if ($oZip->open($sZipTempPath, \ZipArchive::CREATE))
 			{
 				foreach ($aAddFiles as $aItem)
@@ -155,7 +155,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oZip->addFile($aItem[0], $aItem[1]);
 				}
 				$oZip->close();
-				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName, '', 'Mail');
+				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName, '', $this->GetName());
 				$mResult = \Aurora\System\Utils::GetClientFileResponse(
 					$this->GetName(), $UserId, 'attachments.zip', $sZipTempName, $iFileSize
 				);

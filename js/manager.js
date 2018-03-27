@@ -14,6 +14,7 @@ module.exports = function (oAppData) {
 			UrlUtils = require('%PathToCoreWebclientModule%/js/utils/Url.js'),
 			
 			Ajax = require('%PathToCoreWebclientModule%/js/Ajax.js'),
+			Api = require('%PathToCoreWebclientModule%/js/Api.js'),
 			Screens = require('%PathToCoreWebclientModule%/js/Screens.js'),
 			
 			bAllowZip = oAppData['%ModuleName%'] ? !!oAppData['%ModuleName%'].AllowZip : false
