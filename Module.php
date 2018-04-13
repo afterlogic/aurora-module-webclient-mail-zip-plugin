@@ -72,42 +72,83 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	private function expandZipAttachment($sUUID, $sTempZipPath)
 	{
-		$mResult = array();
+		$aResult = array();
+		$bHasMore = false;
 		
 		$oZip = new \ZipArchive();
 		
 		if (file_exists($sTempZipPath) && $oZip->open($sTempZipPath))
 		{
+			// Distributes files by levels.
+			$aFilesData = [];
 			for ($iIndex = 0; $iIndex < $oZip->numFiles; $iIndex++)
 			{
 				$aStat = $oZip->statIndex($iIndex);
-				$sFile = $oZip->getFromIndex($iIndex);
-				$iFileSize = $sFile ? strlen($sFile) : 0;
-
-				if ($aStat && $sFile && 0 < $iFileSize && !empty($aStat['name']))
+				if (!empty($aStat['name']))
 				{
+					$aNameParts = explode('/', $aStat['name']);
+					$iFileLevel = count($aNameParts);
 					$sFileName = \MailSo\Base\Utils::Utf8Clear(basename($aStat['name']));
-					$sTempName = md5(microtime(true).rand(1000, 9999));
-
-					if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', $this->GetName()))
+					if (!isset($aFilesData[$iFileLevel]) || !is_array($aFilesData[$iFileLevel]))
 					{
-						unset($sFile);
+						$aFilesData[$iFileLevel] = [];
+					}
+					$aFilesData[$iFileLevel][] = [
+						'FileName' => $sFileName,
+						'Index' => $iIndex
+					];
+				}
+			}
+			// Here $aFilesData contains all levels of folders in ZIP archive.
+			
+			
+			// Reads files level by level and writes them in response until ExpandZipFilesLimit is reached.
+			$iFoldersCount = 0;
+			$iExpandZipFilesLimit = $this->getConfig('ExpandZipFilesLimit', 500);
+			foreach ($aFilesData as $aFiles)
+			{
+				if (count($aResult) >= $iExpandZipFilesLimit)
+				{
+					break;
+				}
+				$iFilesCount = count($aFiles);
+				for ($iFileIndex = 0; $iFileIndex < $iFilesCount && count($aResult) < $iExpandZipFilesLimit; $iFileIndex++)
+				{
+					$aFileItemData = $aFiles[$iFileIndex];
+					$sFile = $oZip->getFromIndex($aFileItemData['Index']);
+					$iFileSize = $sFile ? strlen($sFile) : 0;
+					if ($sFile)
+					{
+						$sTempName = md5(microtime(true).rand(1000, 9999));
 
-						$mResult[] = \Aurora\System\Utils::GetClientFileResponse(
-							$this->GetName(), \Aurora\System\Api::getAuthenticatedUserId(), $sFileName, $sTempName, $iFileSize
-						);
+						if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', $this->GetName()))
+						{
+							unset($sFile);
+
+							$aResult[] = \Aurora\System\Utils::GetClientFileResponse(
+								$this->GetName(), \Aurora\System\Api::getAuthenticatedUserId(), $aFileItemData['FileName'], $sTempName, $iFileSize
+							);
+						}
+						else
+						{
+							unset($sFile);
+						}
 					}
 					else
 					{
-						unset($sFile);
+						// Counts all items that shouldn't be in response (they are folders usually).
+						$iFoldersCount++;
 					}
 				}
 			}
-
+			// Determines if there are more files not in the response (because of ExpandZipFilesLimit).
+			$bHasMore = ($iFoldersCount + count($aResult)) < $oZip->numFiles;
 			$oZip->close();
 		}
-
-		return $mResult;
+		return [
+			'Files' => $aResult,
+			'HasMore' => $bHasMore
+		];
 	}
 	
 	/**

@@ -35,21 +35,22 @@ module.exports = function (oAppData) {
 								{
 									this.mailzipSubFilesLoading(true);
 									Ajax.send('%ModuleName%', 'ExpandFile', { 'Hash': this.hash() }, function (oResponse) {
+										var
+											aSubFiles = oResponse.Result && _.isArray(oResponse.Result.Files) ? oResponse.Result.Files : []
+//											bHasMore = !!(oResponse.Result && oResponse.Result.HasMore)
+										;
 										this.mailzipSubFilesLoading(false);
-										if (oResponse.Result)
+										this.subFiles([]);
+										if (Types.isNonEmptyArray(aSubFiles))
 										{
-											this.subFiles([]);
-											if (Types.isNonEmptyArray(oResponse.Result))
-											{
-												_.each(oResponse.Result, _.bind(function (oRawFile) {
-													var oSubFile = oFile.getNewInstance();
-													oSubFile.parse(oRawFile);
-													this.subFiles.push(oSubFile);
-												}, this));
-											}
-											this.mailzipSubFilesLoaded(true);
-											this.subFilesExpanded(true);
+											_.each(aSubFiles, _.bind(function (oRawFile) {
+												var oSubFile = oFile.getNewInstance();
+												oSubFile.parse(oRawFile);
+												this.subFiles.push(oSubFile);
+											}, this));
 										}
+										this.mailzipSubFilesLoaded(true);
+										this.subFilesExpanded(true);
 									}, this);
 								}
 								else

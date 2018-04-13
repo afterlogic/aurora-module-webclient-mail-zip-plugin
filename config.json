@@ -3,6 +3,10 @@
 		false,
 		"bool"
 	],
+    "ExpandZipFilesLimit": [
+		500,
+		"int"
+	],
     "IncludeInMobile": [
 		true,
 		"bool"
