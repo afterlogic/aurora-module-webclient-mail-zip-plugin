@@ -121,12 +121,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 					{
 						$sTempName = md5(microtime(true).rand(1000, 9999));
 
-						if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', $this->GetName()))
+						if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', self::GetName()))
 						{
 							unset($sFile);
 
 							$aResult[] = \Aurora\System\Utils::GetClientFileResponse(
-								$this->GetName(), \Aurora\System\Api::getAuthenticatedUserId(), $aFileItemData['FileName'], $sTempName, $iFileSize
+								self::GetName(), \Aurora\System\Api::getAuthenticatedUserId(), $aFileItemData['FileName'], $sTempName, $iFileSize
 							);
 						}
 						else
@@ -189,7 +189,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oZip = new \ZipArchive();
 			
 			$sZipTempName = md5(microtime());
-			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName, '', $this->GetName());
+			$sZipTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sZipTempName, '', self::GetName());
 			if ($oZip->open($sZipTempPath, \ZipArchive::CREATE))
 			{
 				foreach ($aAddFiles as $aItem)
@@ -197,9 +197,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oZip->addFile($aItem[0], $aItem[1]);
 				}
 				$oZip->close();
-				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName, '', $this->GetName());
+				$iFileSize =  $this->oApiFileCache->fileSize($sUUID, $sZipTempName, '', self::GetName());
 				$mResult = \Aurora\System\Utils::GetClientFileResponse(
-					$this->GetName(), $UserId, 'attachments.zip', $sZipTempName, $iFileSize
+					self::GetName(), $UserId, 'attachments.zip', $sZipTempName, $iFileSize
 				);
 			}
 		}
