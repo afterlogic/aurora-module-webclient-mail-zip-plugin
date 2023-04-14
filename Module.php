@@ -151,12 +151,12 @@ class Module extends \Aurora\System\Module\AbstractModule
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
         $aAddFiles = array();
+        $sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 
         $oMailModuleDecorator = \Aurora\Modules\Mail\Module::Decorator();
         if ($oMailModuleDecorator) {
             $aTempFiles = $oMailModuleDecorator->SaveAttachmentsAsTempFiles($AccountID, $Attachments);
             if (\is_array($aTempFiles)) {
-                $sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
                 foreach ($aTempFiles as $sTempName => $sData) {
                     $aData = \Aurora\System\Api::DecodeKeyValues($sData);
                     if (\is_array($aData) && isset($aData['FileName'])) {
