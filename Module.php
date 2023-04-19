@@ -14,6 +14,8 @@ namespace Aurora\Modules\MailZipWebclientPlugin;
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
  *
+ * @property Settings $oModuleSettings
+ *
  * @package Modules
  */
 class Module extends \Aurora\System\Module\AbstractModule
@@ -115,7 +117,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
             // Reads files level by level and writes them in response until ExpandZipFilesLimit is reached.
             $iFoldersCount = 0;
-            $iExpandZipFilesLimit = $this->getConfig('ExpandZipFilesLimit', 500);
+            $iExpandZipFilesLimit = $this->oModuleSettings->ExpandZipFilesLimit;
             foreach ($aFilesData as $aFiles) {
                 if (count($aResult) >= $iExpandZipFilesLimit) {
                     break;
