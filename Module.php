@@ -134,7 +134,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $sFile = $oZip->getFromIndex($aFileItemData['Index']);
                     $iFileSize = $sFile ? strlen($sFile) : 0;
                     if ($sFile) {
-                        $sTempName = md5(microtime(true).rand(1000, 9999));
+                        $sTempName = md5(microtime(true) . rand(1000, 9999));
 
                         if ($this->oApiFileCache->put($sUUID, $sTempName, $sFile, '', self::GetName())) {
                             unset($sFile);
