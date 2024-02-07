@@ -165,6 +165,31 @@ class Module extends \Aurora\System\Module\AbstractModule
         ];
     }
 
+    protected function getNonExistentFileName($aFiles, $sFileName)
+    {
+        $iIndex = 1;
+        $sFileNamePathInfo = pathinfo($sFileName);
+        $sFileNameExt = '';
+        $sFileNameWOExt = $sFileName;
+        if (isset($sFileNamePathInfo['extension']))
+        {
+            $sFileNameExt = '.'.$sFileNamePathInfo['extension'];
+        }
+
+        if (isset($sFileNamePathInfo['filename']))
+        {
+            $sFileNameWOExt = $sFileNamePathInfo['filename'];
+        }
+
+        while (count(array_filter($aFiles, function($item) use ($sFileName) { return $item[1] === $sFileName; })) > 0)
+        {
+            $sFileName = $sFileNameWOExt.'('.$iIndex.')'.$sFileNameExt;
+            $iIndex++;
+        }
+
+        return $sFileName;
+    }
+
     /**
      * @param int $UserId
      * @param int $AccountID
@@ -188,6 +213,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     if (\is_array($aData) && isset($aData['FileName'])) {
                         $sFileName = (string) $aData['FileName'];
                         $sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
+                        sFileName = $this->getNonExistentFileName($aFiles, $sFileName);
                         $aAddFiles[] = array($sTempPath, $sFileName);
                     }
                 }
