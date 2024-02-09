@@ -210,7 +210,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     if (\is_array($aData) && isset($aData['FileName'])) {
                         $sFileName = (string) $aData['FileName'];
                         $sTempPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
-                        sFileName = $this->getNonExistentFileName($aFiles, $sFileName);
+                        $sFileName = $this->getNonExistentFileName($aAddFiles, $sFileName);
                         $aAddFiles[] = array($sTempPath, $sFileName);
                     }
                 }
