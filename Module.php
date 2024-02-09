@@ -171,19 +171,16 @@ class Module extends \Aurora\System\Module\AbstractModule
         $sFileNamePathInfo = pathinfo($sFileName);
         $sFileNameExt = '';
         $sFileNameWOExt = $sFileName;
-        if (isset($sFileNamePathInfo['extension']))
-        {
-            $sFileNameExt = '.'.$sFileNamePathInfo['extension'];
+        if (isset($sFileNamePathInfo['extension'])) {
+            $sFileNameExt = '.' . $sFileNamePathInfo['extension'];
         }
 
-        if (isset($sFileNamePathInfo['filename']))
-        {
+        if (isset($sFileNamePathInfo['filename'])) {
             $sFileNameWOExt = $sFileNamePathInfo['filename'];
         }
 
-        while (count(array_filter($aFiles, function($item) use ($sFileName) { return $item[1] === $sFileName; })) > 0)
-        {
-            $sFileName = $sFileNameWOExt.'('.$iIndex.')'.$sFileNameExt;
+        while (count(array_filter($aFiles, function ($item) use ($sFileName) { return $item[1] === $sFileName; })) > 0) {
+            $sFileName = $sFileNameWOExt . '(' . $iIndex . ')' . $sFileNameExt;
             $iIndex++;
         }
 
