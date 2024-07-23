@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\MailZipWebclientPlugin;
 
+use Aurora\Modules\Mail\Module as MailModule;
+
 /**
  * Adds Expand button on ZIP-attachment and shows its content.
  *
@@ -74,17 +76,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
         $aValues = \Aurora\System\Api::DecodeKeyValues($Hash);
-        $oCoreDecorator = \Aurora\Modules\Mail\Module::Decorator();
+        $oMailModuleDecorator = MailModule::Decorator();
 
         if (isset($aValues['AccountID'])) {
-            $aFiles = $oCoreDecorator->SaveAttachmentsAsTempFiles($aValues['AccountID'], [$Hash]);
-            foreach ($aFiles as $sTempName => $sHash) {
-                if ($sHash === $Hash) {
+            $oAccount = $oMailModuleDecorator->GetAccount($aValues['AccountID']);
+            if ($oAccount->IdUser === $UserId) {
+                $aFiles = $oMailModuleDecorator->SaveAttachmentsAsTempFiles($aValues['AccountID'], [$Hash]);
+                $sTempName = array_search($Hash, $aFiles);
+                if ($sTempName) {
                     $sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
                     $mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
                 }
             }
-        } else {
+        } else { // TODO: unknown case
             $sTempName = (isset($aValues['TempName'])) ? $aValues['TempName'] : 0;
             $sTempZipPath = $this->oApiFileCache->generateFullFilePath($sUUID, $sTempName);
             $mResult = $this->expandZipAttachment($sUUID, $sTempZipPath);
@@ -201,7 +205,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $aAddFiles = array();
         $sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 
-        $oMailModuleDecorator = \Aurora\Modules\Mail\Module::Decorator();
+        $oMailModuleDecorator = MailModule::Decorator();
         if ($oMailModuleDecorator) {
             $aTempFiles = $oMailModuleDecorator->SaveAttachmentsAsTempFiles($AccountID, $Attachments);
             if (\is_array($aTempFiles)) {
