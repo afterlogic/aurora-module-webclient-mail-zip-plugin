@@ -72,6 +72,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function ExpandFile($UserId, $Hash)
     {
+        \Aurora\System\Api::CheckAccess($UserId);
+
         $mResult = array();
 
         $sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
